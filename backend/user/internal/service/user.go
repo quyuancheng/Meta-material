@@ -71,6 +71,41 @@ func (us *UserService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCodeR
 	}, nil
 }
 
+func (us *UserService) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginResp, error) {
+	//TODO: 先只验证手机号，后续会增加邮箱和其他的
+	if !VerifyPhoneFormat(req.Account) {
+		return &pb.LoginResp{
+			Code:  400,
+			Token: "",
+		}, nil
+	}
+	// 查询手机号是否存在，不存在提示注册
+	_, err := us.userUsecase.GetUserByAccount(context.Background(), req.Account)
+	if err != nil {
+		return &pb.LoginResp{
+			Code:    400,
+			Token:   "",
+			Message: "Phone number does not exist, please register",
+		}, nil
+	}
+	// 查询密码是否正确
+	// 查询验证码是否过期，如果过期则提示验证码过期
+	code, err := us.userUsecase.GetVerifyCode(context.Background(), req.Account)
+	if code == "" && err != nil {
+		return &pb.LoginResp{
+			Code:    400,
+			Token:   "",
+			Message: "The verification code has expired",
+		}, nil
+	}
+	// 登录成功，返回token
+	return &pb.LoginResp{
+		Code:    200,
+		Token:   "token",
+		Message: "login success",
+	}, nil
+}
+
 func VerifyPhoneFormat(phone string) bool {
 	// 手机格式校验
 	pattern := `^1[3|4|5|7|8][0-9]{9}$`

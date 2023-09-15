@@ -25,3 +25,22 @@ func (u *UserRepo) SetVerifyCode(ctx context.Context, phone, code string, ex int
 	}
 	return nil
 }
+
+func (u *UserRepo) GetVerifyCode(ctx context.Context, phone string) (string, error) {
+	// 获取验证码
+	res := u.data.Rdb.Get(ctx, phone)
+	if code, err := res.Result(); err != nil {
+		return "", err
+	} else {
+		return code, nil
+	}
+}
+
+func (u *UserRepo) GetUserByAccount(ctx context.Context, account string) (*biz.User, error) {
+	var user *biz.User
+	err := u.data.DB.Where("phone", account).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}

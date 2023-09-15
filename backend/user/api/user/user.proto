@@ -15,8 +15,16 @@ service User {
       get:"/user/get-verify-code/{phone}"
     };
   }
+  // 登录
+  rpc Login (LoginReq) returns (LoginResp) {
+    option (google.api.http) = {
+      post:"/user/login"
+      body: "*"
+    };
+  }
 }
 
+// 验证码
 message GetVerifyCodeReq{
   string phone = 1;
 };
@@ -30,4 +38,16 @@ message GetVerifyCodeResp{
   int64 verify_code_time = 4;
   // 有效期 second
   int64 verify_code_life = 5;
+};
+
+// 登录
+message LoginReq{
+  string account = 1;
+  string verify_code = 2;
+};
+
+message LoginResp{
+  int64 code = 1;
+  string token = 2;
+  string message = 3;
 };
