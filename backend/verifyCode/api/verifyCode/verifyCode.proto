@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api.verifyCode;
+
+option go_package = "verifyCode/api/verifyCode;verifyCode";
+option java_multiple_files = true;
+option java_package = "api.verifyCode";
+
+service VerifyCode {
+	rpc GetVerifyCode (GetVerifyCodeRequest) returns (GetVerifyCodeReply);
+}
+
+enum TYPE {
+	DEFAULT = 0;
+	DIGIT = 1;
+	LETTER = 2;
+	MIXED = 3;
+}
+
+// 获取验证码请求参数
+message GetVerifyCodeRequest {
+	// 验证码长度
+	uint32 length = 1;
+	// 验证码类型
+	TYPE type = 2;
+}
+message GetVerifyCodeReply {
+	// 验证码
+	string code = 1;
+}

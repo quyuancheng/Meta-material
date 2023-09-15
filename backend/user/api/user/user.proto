@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package api.user;
+
+import  "google/api/annotations.proto";
+
+option go_package = "user/api/user;user";
+option java_multiple_files = true;
+option java_package = "api.user";
+
+service User {
+  // 获取验证码
+  rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
+    option (google.api.http) = {
+      get:"/user/get-verify-code/{phone}"
+    };
+  }
+}
+
+message GetVerifyCodeReq{
+  string phone = 1;
+};
+
+message GetVerifyCodeResp{
+  int64 code = 1;
+  string message = 2;
+  // 验证码
+  string verify_code = 3;
+  // 生成时间
+  int64 verify_code_time = 4;
+  // 有效期 second
+  int64 verify_code_life = 5;
+};
