@@ -2,6 +2,7 @@ package server
 
 import (
 	v1 "verifyCode/api/helloworld/v1"
+	"verifyCode/api/jwt"
 	"verifyCode/api/verifyCode"
 	"verifyCode/internal/conf"
 	"verifyCode/internal/service"
@@ -16,6 +17,7 @@ func NewGRPCServer(
 	c *conf.Server,
 	greeter *service.GreeterService,
 	verifyCodeService *service.VerifyCodeService,
+	jwtService *service.JwtService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
@@ -35,5 +37,6 @@ func NewGRPCServer(
 	v1.RegisterGreeterServer(srv, greeter)
 	// 完成服务注册
 	verifyCode.RegisterVerifyCodeServer(srv, verifyCodeService)
+	jwt.RegisterJwtServer(srv, jwtService)
 	return srv
 }

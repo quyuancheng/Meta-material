@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
 	"time"
+	"user/api/jwt"
 	pb "user/api/user"
 	"user/api/verifyCode"
 	"user/internal/biz"
@@ -80,7 +81,7 @@ func (us *UserService) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginRe
 		}, nil
 	}
 	// 查询手机号是否存在，不存在提示注册
-	_, err := us.userUsecase.GetUserByAccount(context.Background(), req.Account)
+	user, err := us.userUsecase.GetUserByAccount(context.Background(), req.Account)
 	if err != nil {
 		return &pb.LoginResp{
 			Code:    400,
@@ -98,10 +99,35 @@ func (us *UserService) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginRe
 			Message: "The verification code has expired",
 		}, nil
 	}
+	// jwt服务
+	conn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint("localhost:9000"),
+	)
+	if err != nil {
+		return &pb.LoginResp{
+			Code:    400,
+			Message: "Failed to generate token",
+		}, nil
+	}
+	defer func() {
+		_ = conn.Close()
+	}()
+	// 生成jwt
+	client := jwt.NewJwtClient(conn)
+	j, err := client.CreateJwt(context.Background(), &jwt.CreateJwtRequest{
+		UserName: user.Name,
+	})
+	if err != nil {
+		return &pb.LoginResp{
+			Code:    400,
+			Message: "create jwt failed",
+		}, nil
+	}
 	// 登录成功，返回token
 	return &pb.LoginResp{
 		Code:    200,
-		Token:   "token",
+		Token:   j.Token,
 		Message: "login success",
 	}, nil
 }

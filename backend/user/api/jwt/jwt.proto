@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package api.jwt;
+
+option go_package = "verifyCode/api/jwt;jwt";
+option java_multiple_files = true;
+option java_package = "api.jwt";
+
+service Jwt {
+	rpc CreateJwt (CreateJwtRequest) returns (CreateJwtReply);
+	rpc GetJwt (GetJwtRequest) returns (GetJwtReply);
+}
+
+message CreateJwtRequest {
+	string user_name = 1;
+}
+
+message CreateJwtReply {
+	int64 code = 1;
+	string token = 2;
+}
+
+message GetJwtRequest {
+	string token = 1;
+}
+message GetJwtReply {
+	int64 code = 1;
+}
