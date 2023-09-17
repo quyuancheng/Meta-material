@@ -1,12 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/go-kratos/kratos/v2/middleware"
 	"os"
 
 	"user/internal/conf"
 
-	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
@@ -45,6 +46,24 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 			hs,
 		),
 	)
+}
+
+func authMiddleware(handler middleware.Handler) middleware.Handler {
+	return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+		log.Info("auth middleware in", req)
+		reply, err = handler(ctx, req)
+		log.Info("auth middleware out", reply)
+		return
+	}
+}
+
+func loggingMiddleware(handler middleware.Handler) middleware.Handler {
+	return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
+		log.Info("logging middleware in", req)
+		reply, err = handler(ctx, req)
+		log.Info("logging middleware out", reply)
+		return
+	}
 }
 
 func main() {
